@@ -1,1 +1,7 @@
 **Hi, this is the HackNotts '25 git repo for our team's submission**
+
+
+
+## Initial Ideas
+
+### Ai Portfolio Manager
