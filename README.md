@@ -5,3 +5,5 @@
 ## Initial Ideas
 
 ### Ai Portfolio Manager
+
+### Ai Sentiment Analysis
