@@ -1,4 +1,3 @@
-import os
 import requests
 
 FMP_API_KEY = 'tXbUoWgagYPE4RGbi7hcoYSvIUcbkzX1'
