@@ -39,7 +39,10 @@ This endpoint is for checking if the backend server is running correctly.
 
 ### 2. Get Full Sentiment Analysis
 
-Fetches a comprehensive sentiment analysis for a given stock, combining analyst ratings and social media sentiment.
+Fetches a comprehensive sentiment analysis for a given stock. This combines three distinct analyses:
+1.  **Analyst Sentiment:** Based on professional analyst ratings.
+2.  **Social Sentiment:** Based on Reddit discussions and Google Trends data.
+3.  **Combined Sentiment:** A final, confidence-weighted score that blends the analyst and social signals.
 
 -   **URL:** `/stock/{ticker}`
 -   **Method:** `GET`
@@ -48,37 +51,20 @@ Fetches a comprehensive sentiment analysis for a given stock, combining analyst 
 
 -   **Success Response:**
     -   **Code:** `200 OK`
-    -   **Content:** A JSON object containing the separate analyses for analyst and social sentiment, along with a blended overall score.
+    -   **Content:** A JSON object containing the scores and summaries for all three analysis types.
         ```json
         {
-            "ticker": "TSLA",
-            "analystSentiment": {
-                "summary": "Analysts are currently bullish on Tesla, citing strong EV delivery growth and market leadership. The average price target suggests a potential upside of 15.20% from the current price.",
-                "score": 82.5
-            },
-            "socialSentiment": {
-                "summary": "Social media sentiment is highly positive, driven by significant search interest on Google Trends and a large volume of positive discussion on Reddit regarding upcoming product announcements.",
-                "score": 91.7
-            },
-            "overallScore": 87.1
+            "analyst_score": 83,
+            "analyst_summary": "Analysts are currently bullish on Tesla, citing strong EV delivery growth and market leadership. The average price target suggests a potential upside of 15.20% from the current price.",
+            "social_score": 92,
+            "social_summary": "Social media sentiment is highly positive, driven by significant search interest on Google Trends and a large volume of positive discussion on Reddit regarding upcoming product announcements.",
+            "combined_score": 87.8,
+            "combined_sentiment": "Overall sentiment is strongly positive. This is primarily driven by high social media buzz and positive Reddit conversations, further supported by a solid 'Buy' consensus from market analysts, whose opinions are given moderate weight due to a significant number of reviews."
         }
         ```
 
 -   **Error Response:**
     -   If part of the analysis fails (e.g., for a ticker with no analyst ratings), the `summary` for that section will contain an error message and the `score` may default to a neutral value.
-        ```json
-        {
-            "ticker": "SOMETICKER",
-            "analystSentiment": {
-                "summary": {
-                    "err_msg": "Insufficient Data for Analyst Analysis"
-                 },
-                "score": 0
-            },
-            "socialSentiment": { ... },
-            "overallScore": ...
-        }
-        ```
 
 **Example using JavaScript `fetch`:**
 ```javascript
@@ -88,7 +74,9 @@ fetch(`http://127.0.0.1:8000/stock/${ticker}`)
   .then(response => response.json())
   .then(data => {
     console.log('Full Analysis:', data);
-    console.log('Overall Score:', data.overallScore);
+    console.log('--- Combined Analysis ---');
+    console.log('Score:', data.combined_score);
+    console.log('Summary:', data.combined_sentiment);
   })
   .catch(error => console.error('Fetch Error:', error));
 ```
