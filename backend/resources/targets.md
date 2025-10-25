@@ -1,11 +1,11 @@
 ### Current Working
 - [ ] Market Sentiment Analysis
     - Analyst
-        - [ ] Analyst Sentiment
-        - [ ] Analyst Sentiment score
+        - [x] Analyst Sentiment
+        - [x] Analyst Sentiment score
     - Social
-        - [ ] Social Sentiment
-        - [ ] Social Sentiment score
+        - [x] Social Sentiment
+        - [x] Social Sentiment score
     - Model
         - [ ] Model Sentiment
         - [ ] Model Sentiment score

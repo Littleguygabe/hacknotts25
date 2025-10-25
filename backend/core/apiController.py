@@ -43,7 +43,13 @@ def get_stock_data(ticker: str,time_period: int):
     #get the sentiment
     sentiment = getSentimentAnalysis(ticker)
 
-    return ticker_data
+    output_data = {'ticker':ticker}
+    for key in sentiment:
+        output_data[key]=sentiment[key]
+
+    output_data['ticker_history'] = ticker_data.get('ticker_history')
+
+    return output_data
 
 
 if __name__ == '__main__':

@@ -1,5 +1,4 @@
 import finnhub
-import json
 import os
 import dotenv
 from datetime import datetime,timedelta

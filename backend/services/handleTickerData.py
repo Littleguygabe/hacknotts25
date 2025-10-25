@@ -33,7 +33,6 @@ def getRawData(ticker,time_period):
         case _:
             time_interval = '1d'
 
-    print(f"Using interval: {time_interval}")
 
     data_df = tick.history(period=f'{time_period}d',interval=time_interval) 
     

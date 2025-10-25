@@ -36,7 +36,6 @@ def getGeminiNL(data):
     """
 
     try:
-        print('Producing Gemini Technical Summary...')
         response = model.generate_content(prompt)
         return response.text
 
@@ -60,7 +59,7 @@ def getNewsSummary(news,ticker_sym):
     """
 
     try:
-        print('Producing Gemini News Summary...')
+        # print('Producing Gemini News Summary...')
         response = model.generate_content(prompt)
         return response.text
 
