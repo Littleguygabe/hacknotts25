@@ -1,12 +1,23 @@
 import yfinance as yf
 import services.finnHubController as finnHubController
 from models.geminiController import getGeminiNL
-import os
 import dotenv
 from pytrends.request import TrendReq
 import pandas as pd
 from services.redditController import RedditController
 import warnings
+
+#imports for caching
+import redis
+import json
+try:
+    redis_client = redis.Redis(host='127.0.0.1',port=6379,db=0,decode_responses=True)
+    redis_client.ping()
+    print('Connected to Redis')
+except Exception as e:
+    print(f'ERROR > {e}')
+    print('Caching will be disabled')
+    redis_client = None
 
 
 dotenv.load_dotenv()
@@ -218,6 +229,19 @@ class CustomSentiment:
         return self.summary,self.sentiment_score
 
 def getSentimentAnalysis(ticker):
+    #check if the data is already cached as no point re-calculating
+    if redis_client:
+        try:
+            cached_result = redis_client.get(f'sentiment_cache:{ticker}')
+            if cached_result:
+                print(f'Found cached data for {ticker}')
+                return json.loads(cached_result)
+
+        except Exception as e:
+            print(f'Error Reading data from cache > {e}')
+
+    print(f'Cache MISS for > {ticker}')
+
     analyst_analyser = AnalystSentiment(ticker)
     analyst_summary, analyst_score = analyst_analyser.getFullAnalysis()
 
@@ -234,6 +258,18 @@ def getSentimentAnalysis(ticker):
         'social_summary':social_summary,
         'combined_score':combined_score,
         'combined_sentiment':combined_summary,
+        'current_price':analyst_analyser.raw_data.get('currentPrice'),
+        'analyst_targetMeanPrice': analyst_analyser.raw_data.get('targetMeanPrice')
     }
+
+    if redis_client:
+        try:
+            cache_key = f'sentiment_cache:{ticker}'
+            json_out = json.dumps(output_dict)
+            redis_client.set(cache_key,json_out,ex=1800) #gives ttl 30 minutes
+            print(f'Sentiment for {ticker} cached')
+
+        except Exception as e:
+            print(f'ERROR > Could not Cache Data > {e}')
 
     return output_dict
