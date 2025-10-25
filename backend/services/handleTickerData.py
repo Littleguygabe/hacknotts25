@@ -14,7 +14,8 @@ def getTickerAttributes(ticker,time_period):
 
         return ticker_dict
 
-    except:
+    except Exception as e:
+        print(f'Exception Message > {e}')
         return {'err_msg':f"'{ticker}' ticker Does not exist OR has no retrievable data"}
 
 def getRawData(ticker,time_period):
@@ -32,23 +33,25 @@ def getRawData(ticker,time_period):
         case _:
             time_interval = '1d'
 
-    print(time_interval)
+    print(f"Using interval: {time_interval}")
 
-    data_1m_int = tick.history(period='7d',interval=time_interval) 
-    data_1m_int.reset_index(inplace=True)
+    data_df = tick.history(period=f'{time_period}d',interval=time_interval) 
+    
+    data_df.reset_index(inplace=True)
+    date_col_name = 'Datetime' if 'Datetime' in data_df.columns else 'Date'
+    data_df[date_col_name] = data_df[date_col_name].dt.strftime('%Y-%m-%d %H:%M:%S')
 
-    data_1m_int['Datetime'] = data_1m_int['Datetime'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    data_df.rename(columns={date_col_name: 'Datetime'}, inplace=True)
 
-    data_1m_int = data_1m_int[['Datetime','Close']]
+    data_df = data_df[['Datetime','Close']]
 
-    data_dict_arr = data_1m_int.to_dict(orient='records')
-
+    data_dict_arr = data_df.to_dict(orient='records')
 
     return data_dict_arr
 
 
 if __name__ == '__main__':
-    output = getRawData('AAPL')  
+    output = getRawData('AAPL', 100)
     print(output)
 
 
