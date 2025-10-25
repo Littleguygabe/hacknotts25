@@ -1,8 +1,6 @@
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import ScoreCircle from "./ScoreCircle";
 
@@ -12,20 +10,30 @@ interface PredictionCardProps {
   image: string;
   predictionAnalysis: string;
   color: string;
+  ticker: string;
 }
 
-export function PredictionCard({ title, score, image, predictionAnalysis, color }: PredictionCardProps) {
+/**
+ * A card component that displays a specific sentiment analysis 
+ * (Analyst, Social, or Overall) for a given stock ticker.
+ */
+export function PredictionCard({ title, score, image, predictionAnalysis, color, }: PredictionCardProps) {
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="flex items-center justify-around gap-4">
-          <img src={image} alt={title} className="w-48 h-48 object-contain rounded-md" />
-          <ScoreCircle score={score} color={color} />
+    <Card className="w-full max-w-xs flex-shrink-0">
+      <CardContent className="grid gap-4 p-4">
+        <div className="flex gap-2 items-center">
+          {/* Left side: Image */}
+          <img src={image} alt={title} className="w-32 h-32 object-contain rounded-md" />
+
+          {/* Right side: Title and Score */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-lg font-semibold">{title}</h3>
+            <ScoreCircle score={score} color={color} />
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground">
+
+        {/* Bottom row: Analysis Text */}
+        <p className="text-base text-muted-foreground">
           {predictionAnalysis}
         </p>
       </CardContent>

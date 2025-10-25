@@ -1,44 +1,32 @@
 import { NavigationMenuDemo } from './components/Header/header'
-import { ItemSummary } from './components/PredictionShowdown/SummaryPrediction'
-import { PredictionCard } from './components/PredictionShowdown/PredictionCard'
 import analystImage from '@/assets/Gemini_Generated_Image_mzgdvomzgdvomzgd-removebg-preview.png'
-
-import retailImage from '@/assets/Frame_1-removebg-preview.png'
+import finScytheImage from '@/assets/Frame_2-removebg-preview.png'
+import retailImage from '@/assets/Gemini_Generated_Image_edpypaedpypaedpy-removebg-preview.png'
 
 import './App.css'
 import { ChartAreaWithDateTime } from './components/StockChartPanel/StockChart'
-import { ItemFinScythe } from './components/PredictionShowdown/FinScythePrediction'
+import { useTicker } from './context/TickerContext'
+import { PredictionShowdownContainer } from './components/PredictionShowdown/PredictionShowdownContainer'
 
 function App() {
-
-  const analystCard = {
-    title: "Analyst Prediction",
-    score: 88,
-    image: analystImage,
-    predictionAnalysis: "Based on market trends and recent company performance, we predict a strong upward movement.",
-    color: "#22c55e"
-  }
-
-  const communityCard = {
-    title: "Community Prediction",
-    score: 72,
-    image: retailImage,
-    predictionAnalysis: "The community sentiment is largely positive, with some concerns about upcoming regulations.",
-    color: "#3b82f6"
-  }
+  const { selectedTicker } = useTicker();
 
   return (
     <>
       <NavigationMenuDemo />
-      <main className="container mx-auto px-4 py-8 flex flex-col gap-8">
-        <ChartAreaWithDateTime />
-        <ItemSummary />
-        <div className="flex justify-center gap-8">
-          <PredictionCard {...analystCard} />
-          <PredictionCard {...communityCard} />
+      {/* Added max-w-7xl to main container for better desktop centering and width constraint */}
+      <main className="mx-auto px-4 py-8 flex flex-col gap-8 max-w-7xl">
+        <ChartAreaWithDateTime ticker={selectedTicker} />
+        
+        {/* Adjusted title alignment to the start of the container */}
+        <div className="flex justify-center items-center">
+          <p className="text-2xl font-bold">Predictions</p>
         </div>
-        <ItemFinScythe />
+        <PredictionShowdownContainer ticker={selectedTicker} />
       </main>
+      <footer className="text-center py-4 text-sm text-muted-foreground">
+        © 2025 FinScythe. All rights reserved.
+      </footer>
     </>
   )
 }

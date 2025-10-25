@@ -10,7 +10,7 @@ export function TimeRangeButtonGroup({ timeRange, setTimeRange }: TimeRangeButto
   return (
     <ButtonGroup>
       <Button
-        variant={timeRange === "24h" ? "default" : "outline"}
+        variant={timeRange === "24h" ? "secondary" : "outline"}
         onClick={() => setTimeRange("24h")}
       >
         24h
@@ -22,13 +22,13 @@ export function TimeRangeButtonGroup({ timeRange, setTimeRange }: TimeRangeButto
         7d
       </Button>
       <Button
-        variant={timeRange === "3m" ? "default" : "outline"}
+        variant={timeRange === "3m" ? "secondary" : "outline"}
         onClick={() => setTimeRange("3m")}
       >
         3m
       </Button>
       <Button
-        variant={timeRange === "1y" ? "default" : "outline"}
+        variant={timeRange === "1y" ? "secondary" : "outline"}
         onClick={() => setTimeRange("1y")}
       >
         1y

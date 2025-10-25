@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button"
 import {
   Item,
-  ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
@@ -12,16 +10,11 @@ export function ItemFinScythe() {
     <div className="flex w-full max-w-md flex-col gap-6">
       <Item variant="outline">
         <ItemContent>
-          <ItemTitle>Basic Item</ItemTitle>
+          <ItemTitle>Predictions</ItemTitle>
           <ItemDescription>
-            A simple item with title and description.
+            Providing AI-driven market predictions.
           </ItemDescription>
         </ItemContent>
-        <ItemActions>
-          <Button variant="outline" size="sm">
-            Action
-          </Button>
-        </ItemActions>
       </Item>
     </div>
   )
