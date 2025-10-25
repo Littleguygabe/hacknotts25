@@ -48,8 +48,6 @@ def getRawData(ticker,time_period):
     data_dict_arr = data_df.to_dict(orient='records')
 
     return data_dict_arr
-
-
 if __name__ == '__main__':
     output = getRawData('AAPL', 100)
     print(output)
