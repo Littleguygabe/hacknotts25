@@ -27,7 +27,7 @@ def test_api_call(message: str):
     print(f'received api request with message > {message}')
 
     ### fastAPI auto converts python dictionaries into json data
-    return {'message':'thank you for your api call'}
+    return {'message':f'Call Received with message > {message}'}
 
 if __name__ == '__main__':
     uvicorn.run(app,host="127.0.0.1",port=8000)
