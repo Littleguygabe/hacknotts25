@@ -1,10 +1,13 @@
 import { NavigationMenuDemo } from './components/Header/header'
-import { ButtonGroupDemo } from './components/StockChartPanel/stock-button-group'
+import { ItemSummary } from './components/PredictionShowdown/SummaryPrediction'
 import { PredictionCard } from './components/PredictionShowdown/PredictionCard'
 import analystImage from '@/assets/Gemini_Generated_Image_mzgdvomzgdvomzgd-removebg-preview.png'
 
+import retailImage from '@/assets/Frame_1-removebg-preview.png'
+
 import './App.css'
-import { ChartAreaInteractive } from './components/StockChartPanel/Stock-Chart'
+import { ChartAreaWithDateTime } from './components/StockChartPanel/StockChart'
+import { ItemFinScythe } from './components/PredictionShowdown/FinScythePrediction'
 
 function App() {
 
@@ -19,7 +22,7 @@ function App() {
   const communityCard = {
     title: "Community Prediction",
     score: 72,
-    image: "https://placehold.co/600x400/E0E0E0/000000/png",
+    image: retailImage,
     predictionAnalysis: "The community sentiment is largely positive, with some concerns about upcoming regulations.",
     color: "#3b82f6"
   }
@@ -27,16 +30,15 @@ function App() {
   return (
     <>
       <NavigationMenuDemo />
-      <div className="flex items-center justify-between mt-8">
-        <ButtonGroupDemo />
-      </div>
-      <div className="mt-8">
-        <ChartAreaInteractive />
-      </div>
-      <div className="flex justify-center gap-8 mt-8">
-        <PredictionCard {...analystCard} />
-        <PredictionCard {...communityCard} />
-      </div>
+      <main className="container mx-auto px-4 py-8 flex flex-col gap-8">
+        <ChartAreaWithDateTime />
+        <ItemSummary />
+        <div className="flex justify-center gap-8">
+          <PredictionCard {...analystCard} />
+          <PredictionCard {...communityCard} />
+        </div>
+        <ItemFinScythe />
+      </main>
     </>
   )
 }
