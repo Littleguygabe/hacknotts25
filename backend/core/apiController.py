@@ -35,7 +35,7 @@ def test_api_call(message: str):
 
 @app.get("/stock/{ticker}")
 def get_stock_data(ticker: str,time_period: int):
-    ticker_data = getTickerAttributes(ticker.upper(),time_period)
+    ticker_data = getTickerAttributes(ticker.strip('$').upper(),time_period)
     return ticker_data
 
 @app.get("/sentiment/{ticker}")
