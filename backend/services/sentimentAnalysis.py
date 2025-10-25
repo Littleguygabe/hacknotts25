@@ -32,9 +32,57 @@ def getAnalystSentiment(ticker_sym):
         return None
 
 
-def createSentimentAnalysis(data):
-    pass
+def analyseSentiment(data):
+    #take in sentiment in the format of the output from analyst sentiment    
+
+    if not data or data.get('recommendationMean') is None:
+        return {
+            'ticker': data.get('ticker','N/A'),
+            'err_msg':'Insufficient Data for Analysis'
+        }
+    
+    score = data['recommendationMean']
+    sentiment_text = 'N/A'
+
+    if score is not None:
+        if score<1.5:
+            sentiment_text='Strong Buy'
+        
+        elif score<2.5:
+            sentiment_text='Buy'
+        
+        elif score<3.5:
+            sentiment_text='Hold'
+
+        elif score<4.5:
+            sentiment_text='Sell'
+
+        else:
+            sentiment_text = 'Strong Sell'
+        
+    
+    potential_upside_pct = 0.0
+    if data['currentPrice'] and data['currentPrice'] > 0 and data['targetMeanPrice'] and data['targetMeanPrice'] > 0:
+        potential_upside_pct = ((data['targetMeanPrice'] / data['currentPrice']) - 1) * 100
+    
+    adjusted_sentiment_score = (5-score)*25 #scales the sentiment score 0-100 with 100 being strong buy
+    
+    analysis = {
+        "ticker": data['ticker'],
+        "sentimentScore": adjusted_sentiment_score,
+        "sentimentText": sentiment_text,
+        "analystCount": data['numberOfAnalystOpinions'],
+        "currentPrice": f"${data['currentPrice']:.2f}",
+        "targetMeanPrice": f"${data['targetMeanPrice']:.2f}",
+        "potentialUpside": f"{potential_upside_pct:.2f}%"
+    }
+    
+    return analysis
 
 def getSentimentAnalysis(ticker,time_period):
-    analyst_sentiment = getAnalystSentiment(ticker)
-    
+    analyst_info = getAnalystSentiment(ticker)
+    analyst_sentiment = analyseSentiment(analyst_info)
+    print(analyst_sentiment)
+
+
+
