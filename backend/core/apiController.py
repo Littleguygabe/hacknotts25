@@ -39,7 +39,6 @@ def get_stock_data(ticker: str,time_period: int):
     #take a time period as a number of days of previous data wanted
 
     ticker_data = getTickerAttributes(ticker.upper(),time_period)
-    sentiment_analysis = getSentimentAnalysis(ticker,time_period)
 
     #get the sentiment
 

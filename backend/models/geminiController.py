@@ -21,28 +21,45 @@ except Exception as e:
 
 def getGeminiNL(data):
     # Now you can create a model without worrying about the key here
-    model = genai.GenerativeModel('gemini-2.5-pro')
+    model = genai.GenerativeModel('gemini-2.0-flash-exp')
     sentiment_data_string = json.dumps(data,indent=2)
 
     ## need to finish off making the prompt
 
+    prompt = f"""
+        Analayse the following data for the stock {data.get('ticker')} and summarise what the sentiment
+        about this stock is and why it has this sentiment using both the news summary and
+        technical data in 2 to 3 sentences, the data to be analysed is below:
+
+        {sentiment_data_string}
+    """
+
+    try:
+        print('Producing Gemini Technical Summary...')
+        response = model.generate_content(prompt)
+        return response.text
+
+    except Exception as e:
+        print(f'Error producing analysis > {e}')
+        return f'ERROR > {e}'
+
+
 
 def getNewsSummary(news,ticker_sym):
     # The model is already configured with the API key
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash-exp')
     news_string = json.dumps(news,indent=2)
 
     prompt = f"""
         Analayse the following recent headlines for the stock {ticker_sym}
         and determine the overall sentiment for the stock based on the headlines and summary
-        then give a response on the sentiment in a maximum of 2 sentences:
+        then give a response on the sentiment in 2 sentences:
 
         {news_string}
     """
 
     try:
         print('Producing Gemini News Summary...')
-        print(GEMINI_API_KEY)
         response = model.generate_content(prompt)
         return response.text
 
