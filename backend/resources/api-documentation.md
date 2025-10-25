@@ -66,7 +66,6 @@ A simple endpoint to test sending a string to the backend and getting a response
 **Example using JavaScript `fetch`:**
 ```javascript
 const message = "Hello from the frontend!";
-// It's important to encode the message to make sure it's a valid URL component
 const encodedMessage = encodeURIComponent(message);
 
 fetch(`http://127.0.0.1:8000/test?message=${encodedMessage}`)
@@ -79,12 +78,17 @@ fetch(`http://127.0.0.1:8000/test?message=${encodedMessage}`)
 
 ### 3. Get Stock Data by Ticker
 
-Fetches recent historical price data for a given stock ticker. The data includes the closing price for each minute over the last 7 days.
+Fetches recent historical price data for a given stock ticker.
 
 -   **URL:** `/stock/{ticker}`
 -   **Method:** `GET`
 -   **URL Parameters:**
     -   `ticker` (string, **required**): The stock symbol to look up (e.g., `AAPL`, `TSLA`).
+-   **Query Parameters:**
+    -   `time_period` (integer, **required**): The number of days to look back. This affects the *granularity* (interval) of the data points returned within a 7-day period.
+        -   `time_period <= 7`: returns `1m` intervals.
+        -   `time_period <= 60`: returns `15m` intervals.
+        -   `time_period > 60`: returns `1d` intervals.
 
 -   **Success Response:**
     -   **Code:** `200 OK`
@@ -117,8 +121,9 @@ Fetches recent historical price data for a given stock ticker. The data includes
 **Example using JavaScript `fetch`:**
 ```javascript
 const ticker = 'AAPL';
+const timePeriod = 7; // Number of days
 
-fetch(`http://127.0.0.1:8000/stock/${ticker}`)
+fetch(`http://127.0.0.1:8000/stock/${ticker}?time_period=${timePeriod}`)
   .then(response => response.json())
   .then(data => {
     if (data.err_msg) {

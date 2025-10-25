@@ -61,7 +61,7 @@
         <div class="py-6">
             <h2 class="text-lg font-semibold text-gray-700">Test "/stock/{ticker}" Endpoint</h2>
             <p class="text-sm text-gray-500 mb-3">
-                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/{ticker}</code>
+                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/{ticker}?time_period=...</code>
             </p>
             <div class="flex space-x-4">
                 <input 
@@ -70,6 +70,13 @@
                     value="AAPL" 
                     placeholder="Enter stock ticker"
                     class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <input 
+                    type="number" 
+                    id="timePeriodInput" 
+                    value="7" 
+                    placeholder="Days"
+                    class="w-24 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <button 
                     id="stockApiButton" 
@@ -100,6 +107,7 @@
         const messageInput = document.getElementById('messageInput');
         const stockApiButton = document.getElementById('stockApiButton');
         const tickerInput = document.getElementById('tickerInput');
+        const timePeriodInput = document.getElementById('timePeriodInput');
         const responseArea = document.getElementById('responseArea');
         const messageArea = document.getElementById('messageArea');
 
@@ -135,8 +143,6 @@
 
             setLoading(testApiButton, 'Sending...');
             
-            // We need to encode the message so it's safe to put in a URL
-            // e.g., "Hello World" becomes "Hello%20World"
             const encodedMessage = encodeURIComponent(message);
             const apiUrl = `${BASE_URL}/test?message=${encodedMessage}`;
 
@@ -148,7 +154,6 @@
                 const data = await response.json();
                 displaySuccess(data);
                 
-                // Also log to console to see the backend print
                 console.log("API call successful. Check your Python terminal to see the 'received api request' print statement!");
 
             } catch (error) {
@@ -161,14 +166,20 @@
         // --- Function to call the "/stock/{ticker}" endpoint ---
         async function callStockApi() {
             const ticker = tickerInput.value;
+            const timePeriod = timePeriodInput.value;
+
             if (!ticker) {
                 messageArea.textContent = 'Please enter a stock ticker.';
+                return;
+            }
+            if (!timePeriod) {
+                messageArea.textContent = 'Please enter a time period in days.';
                 return;
             }
 
             setLoading(stockApiButton, 'Fetching...');
             
-            const apiUrl = `${BASE_URL}/stock/${ticker.toUpperCase()}`;
+            const apiUrl = `${BASE_URL}/stock/${ticker.toUpperCase()}?time_period=${timePeriod}`;
 
             try {
                 const response = await fetch(apiUrl);
@@ -230,6 +241,12 @@
         });
 
         tickerInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                callStockApi();
+            }
+        });
+
+        timePeriodInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 callStockApi();
             }

@@ -33,12 +33,11 @@ def test_api_call(message: str):
     return {'message':f'Call Received with message > {message}'}
 
 @app.get("/stock/{ticker}")
-def get_stock_data(ticker: str):
-    """
-    This endpoint receives a stock ticker, fetches its recent 1-minute interval data,
-    and returns it as a JSON array.
-    """
-    ticker_data = getTickerAttributes(ticker.upper())
+def get_stock_data(ticker: str,time_period: int):
+
+    #take a time period as a number of days of previous data wanted
+
+    ticker_data = getTickerAttributes(ticker.upper(),time_period)
     return ticker_data
 
 
