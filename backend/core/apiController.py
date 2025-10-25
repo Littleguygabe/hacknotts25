@@ -35,21 +35,36 @@ def test_api_call(message: str):
 
 @app.get("/stock/{ticker}")
 def get_stock_data(ticker: str,time_period: int):
-
-    #take a time period as a number of days of previous data wanted
-
     ticker_data = getTickerAttributes(ticker.upper(),time_period)
+    return ticker_data
 
-    #get the sentiment
+@app.get("/sentiment/{ticker}")
+def get_sentiment(ticker:str):
     sentiment = getSentimentAnalysis(ticker)
+    return sentiment
 
-    output_data = {'ticker':ticker}
-    for key in sentiment:
-        output_data[key]=sentiment[key]
 
-    output_data['ticker_history'] = ticker_data.get('ticker_history')
 
-    return output_data
+
+@app.get("/sentiment/synthetic/{ticker}")
+def get_synthetic_sentiment(ticker: str):
+    """
+    Returns a synthetic (mock) data response for frontend development.
+    This avoids calling the Gemini API and other external services.
+    The data structure is identical to the real /stock/{ticker} endpoint.
+    """
+    print(f"--- Serving synthetic data for ticker: {ticker} ---")
+    
+    synthetic_data = {
+        'analyst_score': 83,
+        'analyst_summary': "[SYNTHETIC] Analysts are cautiously optimistic, citing strong market position but noting concerns about upcoming regulatory changes.",
+        'social_score': 75,
+        'social_summary': "[SYNTHETIC] Social media buzz is moderate. While there is positive discussion on Reddit, Google search trends have been flat recently.",
+        'combined_score': 79.0,
+        'combined_sentiment': "[SYNTHETIC] Overall sentiment is positive but measured. The solid analyst ratings are balanced by a more neutral social media landscape, indicating a 'wait-and-see' approach from the public.",
+    }
+    
+    return synthetic_data
 
 
 if __name__ == '__main__':

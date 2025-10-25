@@ -22,61 +22,73 @@ The base URL for all API calls is `http://127.0.0.1:8000`.
 
 ### 1. Health Check
 
-This endpoint is for checking if the backend server is running correctly.
-
 -   **URL:** `/`
 -   **Method:** `GET`
--   **Success Response:**
-    -   **Code:** `200 OK`
-    -   **Content:** 
-        ```json
-        {
-            "message": "Hello! Your fast api backend is running"
-        }
-        ```
+-   **Purpose:** To check if the backend server is running correctly.
 
 ---
 
-### 2. Get Full Sentiment Analysis
-
-Fetches a comprehensive sentiment analysis for a given stock. This combines three distinct analyses:
-1.  **Analyst Sentiment:** Based on professional analyst ratings.
-2.  **Social Sentiment:** Based on Reddit discussions and Google Trends data.
-3.  **Combined Sentiment:** A final, confidence-weighted score that blends the analyst and social signals.
+### 2. Get Historical Price Data
 
 -   **URL:** `/stock/{ticker}`
 -   **Method:** `GET`
+-   **Purpose:** Fetches recent historical price data for a given stock ticker.
 -   **URL Parameters:**
-    -   `ticker` (string, **required**): The stock symbol to look up (e.g., `AAPL`, `TSLA`).
-
+    -   `ticker` (string, **required**): The stock symbol (e.g., `AAPL`).
+-   **Query Parameters:**
+    -   `time_period` (integer, **required**): The number of days of history to fetch.
 -   **Success Response:**
-    -   **Code:** `200 OK`
-    -   **Content:** A JSON object containing the scores and summaries for all three analysis types.
+    ```json
+    {
+        "ticker": "AAPL",
+        "ticker_history": [
+            {
+                "Datetime": "2025-10-24 09:30:00",
+                "Close": 150.12
+            }
+        ]
+    }
+    ```
+
+---
+
+### 3. Get Full Sentiment Analysis
+
+-   **URL:** `/sentiment/{ticker}`
+-   **Method:** `GET`
+-   **Purpose:** Fetches a comprehensive sentiment analysis, combining analyst ratings, social media discussion, and a final confidence-weighted score.
+-   **URL Parameters:**
+    -   `ticker` (string, **required**): The stock symbol (e.g., `TSLA`).
+-   **Success Response:**
+    ```json
+    {
+        "analyst_score": 83,
+        "analyst_summary": "Analysts are currently bullish on Tesla, citing strong EV delivery growth...",
+        "social_score": 92,
+        "social_summary": "Social media sentiment is highly positive, driven by significant search interest...",
+        "combined_score": 87.8,
+        "combined_sentiment": "Overall sentiment is strongly positive, driven by high social media buzz..."
+    }
+    ```
+
+---
+
+### 4. Get Synthetic Sentiment Analysis (for Development)
+
+-   **URL:** `/sentiment/synthetic/{ticker}`
+-   **Method:** `GET`
+-   **Purpose:** Returns a hardcoded, synthetic (mock) sentiment analysis response. Use this for frontend development to avoid using your API quotas for external services like Gemini.
+-   **URL Parameters:**
+    -   `ticker` (string, **required**): The stock symbol. The data returned is always the same, but the ticker is required in the path.
+-   **Success Response:**
+    -   The response has the **exact same structure** as the real `/sentiment/{ticker}` endpoint, but the values are synthetic.
         ```json
         {
             "analyst_score": 83,
-            "analyst_summary": "Analysts are currently bullish on Tesla, citing strong EV delivery growth and market leadership. The average price target suggests a potential upside of 15.20% from the current price.",
-            "social_score": 92,
-            "social_summary": "Social media sentiment is highly positive, driven by significant search interest on Google Trends and a large volume of positive discussion on Reddit regarding upcoming product announcements.",
-            "combined_score": 87.8,
-            "combined_sentiment": "Overall sentiment is strongly positive. This is primarily driven by high social media buzz and positive Reddit conversations, further supported by a solid 'Buy' consensus from market analysts, whose opinions are given moderate weight due to a significant number of reviews."
+            "analyst_summary": "[SYNTHETIC] Analysts are cautiously optimistic...",
+            "social_score": 75,
+            "social_summary": "[SYNTHETIC] Social media buzz is moderate...",
+            "combined_score": 79.0,
+            "combined_sentiment": "[SYNTHETIC] Overall sentiment is positive but measured..."
         }
         ```
-
--   **Error Response:**
-    -   If part of the analysis fails (e.g., for a ticker with no analyst ratings), the `summary` for that section will contain an error message and the `score` may default to a neutral value.
-
-**Example using JavaScript `fetch`:**
-```javascript
-const ticker = 'TSLA';
-
-fetch(`http://127.0.0.1:8000/stock/${ticker}`)
-  .then(response => response.json())
-  .then(data => {
-    console.log('Full Analysis:', data);
-    console.log('--- Combined Analysis ---');
-    console.log('Score:', data.combined_score);
-    console.log('Summary:', data.combined_sentiment);
-  })
-  .catch(error => console.error('Fetch Error:', error));
-```
