@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Test Page</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* A little style for the response area */
+        pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl divide-y divide-gray-200">
+        
+        <h1 class="text-2xl font-bold mb-4 text-gray-800">My FastAPI Tester</h1>
+        
+        <!-- Section 1: Test the root ("/") endpoint -->
+        <div class="py-6">
+            <h2 class="text-lg font-semibold text-gray-700">Test Root Endpoint</h2>
+            <p class="text-sm text-gray-500 mb-3">
+                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /</code>
+            </p>
+            <button 
+                id="healthCheckButton" 
+                class="bg-green-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200"
+            >
+                1. Call Health Check
+            </button>
+        </div>
+
+        <!-- Section 2: Test the "/test" endpoint -->
+        <div class="py-6">
+            <h2 class="text-lg font-semibold text-gray-700">Test "/test" Endpoint</h2>
+            <p class="text-sm text-gray-500 mb-3">
+                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /test?message=...</code>
+            </p>
+            <div class="flex space-x-4">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    value="Hello FastAPI!" 
+                    placeholder="Enter message here"
+                    class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button 
+                    id="testApiButton" 
+                    class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
+                >
+                    2. Send Test API Call
+                </button>
+            </div>
+        </div>
+        
+        <!-- Section 3: Display results -->
+        <div class="pt-6">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">API Response:</h2>
+            <!-- A div to show loading/error messages -->
+            <div id="messageArea" class="text-red-500 font-medium my-3"></div>
+            
+            <!-- A preformatted block to display the JSON response -->
+            <pre id="responseArea" class="bg-gray-900 text-green-300 p-6 rounded-md shadow-inner text-sm">
+// API responses will appear here...
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        // Get references to all the interactive elements
+        const healthCheckButton = document.getElementById('healthCheckButton');
+        const testApiButton = document.getElementById('testApiButton');
+        const messageInput = document.getElementById('messageInput');
+        const responseArea = document.getElementById('responseArea');
+        const messageArea = document.getElementById('messageArea');
+
+        // Base URL for your API
+        const BASE_URL = 'http://localhost:8000';
+
+        // --- Function to call the "/" endpoint ---
+        async function callHealthCheck() {
+            setLoading(healthCheckButton, 'Calling...');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                const data = await response.json();
+                displaySuccess(data);
+
+            } catch (error) {
+                displayError(error);
+            } finally {
+                setDone(healthCheckButton, '1. Call Health Check');
+            }
+        }
+
+        // --- Function to call the "/test" endpoint ---
+        async function callTestApi() {
+            const message = messageInput.value;
+            if (!message) {
+                messageArea.textContent = 'Please enter a message to send.';
+                return;
+            }
+
+            setLoading(testApiButton, 'Sending...');
+            
+            // We need to encode the message so it's safe to put in a URL
+            // e.g., "Hello World" becomes "Hello%20World"
+            const encodedMessage = encodeURIComponent(message);
+            const apiUrl = `${BASE_URL}/test?message=${encodedMessage}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                const data = await response.json();
+                displaySuccess(data);
+                
+                // Also log to console to see the backend print
+                console.log("API call successful. Check your Python terminal to see the 'received api request' print statement!");
+
+            } catch (error) {
+                displayError(error);
+            } finally {
+                setDone(testApiButton, '2. Send Test API Call');
+            }
+        }
+
+        // --- Helper Functions for UI ---
+
+        function setLoading(button, text) {
+            messageArea.textContent = '';
+            responseArea.textContent = 'Loading...';
+            button.disabled = true;
+            button.textContent = text;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        function setDone(button, text) {
+            button.disabled = false;
+            button.textContent = text;
+            button.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function displaySuccess(data) {
+            responseArea.textContent = JSON.stringify(data, null, 2);
+            responseArea.classList.remove('text-red-300');
+            responseArea.classList.add('text-green-300');
+        }
+
+        function displayError(error) {
+            console.error('Fetch error:', error);
+            messageArea.textContent = `Error: ${error.message}. Is your backend server running on port 8000?`;
+            responseArea.textContent = '// Fetch failed. See error message above.';
+            responseArea.classList.remove('text-green-300');
+            responseArea.classList.add('text-red-300');
+        }
+
+        // --- Attach Event Listeners ---
+        healthCheckButton.addEventListener('click', callHealthCheck);
+        testApiButton.addEventListener('click', callTestApi);
+        
+        // Allow pressing 'Enter' in the input field
+        messageInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                callTestApi();
+            }
+        });
+    </script>
+
+</body>
+</html>
