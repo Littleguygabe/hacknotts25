@@ -41,7 +41,7 @@ def get_stock_data(ticker: str,time_period: int):
     ticker_data = getTickerAttributes(ticker.upper(),time_period)
 
     #get the sentiment
-
+    sentiment = getSentimentAnalysis(ticker)
 
     return ticker_data
 

@@ -28,8 +28,9 @@ def getGeminiNL(data):
 
     prompt = f"""
         Analayse the following data for the stock {data.get('ticker')} and summarise what the sentiment
-        about this stock is and why it has this sentiment using both the news summary and
-        technical data in 2 to 3 sentences, the data to be analysed is below:
+        about this stock is and why it has this sentiment in 2 to 3 sentences, I want the explanation to mainly
+        focus on the qualitative factors however it should be based on both qualitative and 
+        quantitative factors the data to be analysed is below:
 
         {sentiment_data_string}
     """
