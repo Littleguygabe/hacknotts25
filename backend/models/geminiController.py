@@ -21,7 +21,7 @@ except Exception as e:
 
 def getGeminiNL(data):
     # Now you can create a model without worrying about the key here
-    model = genai.GenerativeModel('gemini-2.0-flash-exp')
+    model = genai.GenerativeModel('gemini-2.0-flash-lite')
     sentiment_data_string = json.dumps(data,indent=2)
 
     ## need to finish off making the prompt
@@ -47,7 +47,7 @@ def getGeminiNL(data):
 
 def getNewsSummary(news,ticker_sym):
     # The model is already configured with the API key
-    model = genai.GenerativeModel('gemini-2.0-flash-exp')
+    model = genai.GenerativeModel('gemini-2.0-flash-lite')
     news_string = json.dumps(news,indent=2)
 
     prompt = f"""

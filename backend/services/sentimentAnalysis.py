@@ -64,7 +64,7 @@ class AnalystSentiment:
         if self.raw_data.get('currentPrice', 0) > 0 and self.raw_data.get('targetMeanPrice', 0) > 0:
             potential_upside_pct = ((self.raw_data['targetMeanPrice'] / self.raw_data['currentPrice']) - 1) * 100
         self.sentiment_score = (5 - score) * 25 if score is not None else 0
-        analysis_for_gemini = {
+        self.analysis_for_gemini = {
             "analysis_type": "Analyst Sentiment",
             "ticker": self.raw_data['ticker'],
             "sentimentScore": self.sentiment_score,
@@ -73,7 +73,7 @@ class AnalystSentiment:
             "potentialUpside": f"{potential_upside_pct:.2f}%",
             "news_summary": self.raw_data.get('news_summary')
         }
-        self.analysis_summary = getGeminiNL(analysis_for_gemini)
+        self.analysis_summary = getGeminiNL(self.analysis_for_gemini)
 
     def getFullAnalysis(self):
         self._fetch_raw_data()
@@ -118,27 +118,104 @@ class SocialSentiment:
             return 50.0, 50.0, 50.0
 
     def _perform_analysis(self):
-        reddit_headlines, post_count, reddit_score = self._fetch_reddit_data()
-        gtrends_score, gtrends_avg, gtrends_last = self._fetch_gtrends_data()
+        reddit_headlines, self.post_count, self.reddit_score = self._fetch_reddit_data()
+        self.gtrends_score, gtrends_avg, gtrends_last = self._fetch_gtrends_data()
 
-        self.sentiment_score = (reddit_score * 0.6) + (gtrends_score * 0.4)
+        self.sentiment_score = (self.reddit_score * 0.6) + (self.gtrends_score * 0.4)
 
-        analysis_for_gemini = {
+        self.analysis_for_gemini = {
             "analysis_type": "Social Media Sentiment",
             "ticker": self.ticker,
             "blendedScore": self.sentiment_score,
-            "qualitativeSignal (Reddit)": f"{reddit_score:.2f}/100 based on {post_count} posts.",
-            "quantitativeSignal (Google Trends)": f"{gtrends_score:.2f}/100 buzz score.",
+            "qualitativeSignal (Reddit)": f"{self.reddit_score:.2f}/100 based on {self.post_count} posts.",
+            "quantitativeSignal (Google Trends)": f"{self.gtrends_score:.2f}/100 buzz score.",
             "gtrends_average_interest": f"{gtrends_avg:.2f}",
             "gtrends_latest_interest": f"{gtrends_last:.2f}",
             "top_5_headlines": reddit_headlines[:5]
         }
 
-        self.analysis_summary = getGeminiNL(analysis_for_gemini)
+        self.analysis_summary = getGeminiNL(self.analysis_for_gemini)
 
     def getFullAnalysis(self):
         self._perform_analysis()
         return self.analysis_summary, round(self.sentiment_score)
+
+
+class CustomSentiment:
+    def __init__(self,analyst_sentiment,social_sentiment,ticker) -> None:
+        self.analyst_sentiment = analyst_sentiment
+        self.social_sentiment = social_sentiment
+        self.sentiment_score = 50
+    
+
+    def _calculateSentimentScore(self):
+        #get the analyst and social score
+        analyst_sentiment_score = self.analyst_sentiment.sentiment_score
+        social_sentiment_score = self.social_sentiment.reddit_score
+
+        #get the per analyst confidence score and the social buzz value
+
+        analyst_count = self.analyst_sentiment.raw_data['numberOfAnalystOpinions']
+        analyst_conf = min((analyst_count/40.0),1.0) #caps the number of analyst opinions at 40
+
+        post_count = self.social_sentiment.post_count
+        gtrends_score = self.social_sentiment.gtrends_score
+
+        reddit_conf = min((post_count/50.0),1.0)
+        gtrends_conf = gtrends_score/100
+        social_conf_norm = (gtrends_conf*0.6)+(reddit_conf*0.4)
+
+        #convert the acs and sbv into probs
+        total_conf = analyst_conf+social_conf_norm
+
+        if total_conf == 0:
+            analyst_weight = 0.5
+            social_weight = 0.5
+        else:
+            analyst_weight = analyst_conf / total_conf
+            social_weight = social_conf_norm / total_conf
+        
+        # Store them so getFullAnalysis can use them for the Gemini prompt
+        self.analyst_weight = analyst_weight
+        self.social_weight = social_weight
+
+
+        # --- 4. Calculate the Final "Expected Value" Score ---
+        self.sentiment_score = (analyst_sentiment_score * self.analyst_weight) + \
+                               (social_sentiment_score * self.social_weight)
+
+        #calculate the weighted average of the sentiment score
+        
+
+    def getSummary(self):
+        #combine the analyst and social gemini inputs
+        # give it our sentiment score and calculate a summary
+        analyst_data = self.analyst_sentiment.analysis_for_gemini
+        social_data = self.social_sentiment.analysis_for_gemini
+
+        combined_sentiment_score = self.sentiment_score
+
+        final_context_for_gemini = {
+            "analysis_type": "Final Unifying Prediction",
+            "final_blended_score_0_100": combined_sentiment_score,
+            
+            # Nest the original dictionaries to provide clear context for the LLM
+            "analyst_module_data": analyst_data,
+            "social_module_data": social_data,
+            
+            # Also pass the weights you calculated
+            "analyst_weight": self.analyst_weight, 
+            "social_weight": self.social_weight
+        }
+
+        self.summary = getGeminiNL(final_context_for_gemini)
+
+    def getFullAnalysis(self):
+        #first get the weighted sentiment score
+        self._calculateSentimentScore()        
+        self.getSummary()
+
+        return self.summary,self.sentiment_score
 
 def getSentimentAnalysis(ticker):
     analyst_analyser = AnalystSentiment(ticker)
@@ -147,11 +224,16 @@ def getSentimentAnalysis(ticker):
     social_analyser = SocialSentiment(ticker)
     social_summary, social_score = social_analyser.getFullAnalysis()
 
+    combined_analyser = CustomSentiment(analyst_analyser,social_analyser,ticker)
+    combined_summary,combined_score = combined_analyser.getFullAnalysis()
+
     output_dict = {
         'analyst_score':analyst_score,
         'analyst_summary':analyst_summary,
         'social_score':social_score,
-        'social_summary':social_summary
+        'social_summary':social_summary,
+        'combined_score':combined_score,
+        'combined_sentiment':combined_summary,
     }
 
     return output_dict
