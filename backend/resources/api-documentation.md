@@ -26,7 +26,6 @@ This endpoint is for checking if the backend server is running correctly.
 
 -   **URL:** `/`
 -   **Method:** `GET`
--   **Query Parameters:** None
 -   **Success Response:**
     -   **Code:** `200 OK`
     -   **Content:** 
@@ -36,101 +35,60 @@ This endpoint is for checking if the backend server is running correctly.
         }
         ```
 
-**Example using JavaScript `fetch`:**
-```javascript
-fetch('http://127.0.0.1:8000/')
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-```
-
 ---
 
-### 2. Test API Call
+### 2. Get Full Sentiment Analysis
 
-A simple endpoint to test sending a string to the backend and getting a response.
-
--   **URL:** `/test`
--   **Method:** `GET`
--   **Query Parameters:**
-    -   `message` (string, **required**): The message you want to send to the backend.
--   **Success Response:**
-    -   **Code:** `200 OK`
-    -   **Content:** 
-        ```json
-        {
-            "message": "Call Received with message > your_message_here"
-        }
-        ```
-
-**Example using JavaScript `fetch`:**
-```javascript
-const message = "Hello from the frontend!";
-const encodedMessage = encodeURIComponent(message);
-
-fetch(`http://127.0.0.1:8000/test?message=${encodedMessage}`)
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-```
-
----
-
-### 3. Get Stock Data by Ticker
-
-Fetches recent historical price data for a given stock ticker.
+Fetches a comprehensive sentiment analysis for a given stock, combining analyst ratings and social media sentiment.
 
 -   **URL:** `/stock/{ticker}`
 -   **Method:** `GET`
 -   **URL Parameters:**
     -   `ticker` (string, **required**): The stock symbol to look up (e.g., `AAPL`, `TSLA`).
--   **Query Parameters:**
-    -   `time_period` (integer, **required**): The number of days to look back. This affects the *granularity* (interval) of the data points returned within a 7-day period.
-        -   `time_period <= 7`: returns `1m` intervals.
-        -   `time_period <= 60`: returns `15m` intervals.
-        -   `time_period > 60`: returns `1d` intervals.
 
 -   **Success Response:**
     -   **Code:** `200 OK`
-    -   **Content:** A JSON object containing the ticker and an array of its recent closing prices.
+    -   **Content:** A JSON object containing the separate analyses for analyst and social sentiment, along with a blended overall score.
         ```json
         {
-            "ticker": "AAPL",
-            "ticker_history": [
-                {
-                    "Datetime": "2025-10-24 09:30:00",
-                    "Close": 150.12
-                },
-                {
-                    "Datetime": "2025-10-24 09:31:00",
-                    "Close": 150.15
-                }
-            ]
+            "ticker": "TSLA",
+            "analystSentiment": {
+                "summary": "Analysts are currently bullish on Tesla, citing strong EV delivery growth and market leadership. The average price target suggests a potential upside of 15.20% from the current price.",
+                "score": 82.5
+            },
+            "socialSentiment": {
+                "summary": "Social media sentiment is highly positive, driven by significant search interest on Google Trends and a large volume of positive discussion on Reddit regarding upcoming product announcements.",
+                "score": 91.7
+            },
+            "overallScore": 87.1
         }
         ```
 
 -   **Error Response:**
-    -   **Code:** `200 OK` (Note: The API currently returns a 200 status even for invalid tickers. The frontend should check the response body for an `err_msg` key to handle errors.)
-    -   **Content:**
+    -   If part of the analysis fails (e.g., for a ticker with no analyst ratings), the `summary` for that section will contain an error message and the `score` may default to a neutral value.
         ```json
         {
-            "err_msg": "'INVALIDTICKER' ticker Does not exist OR has no retrievable data"
+            "ticker": "SOMETICKER",
+            "analystSentiment": {
+                "summary": {
+                    "err_msg": "Insufficient Data for Analyst Analysis"
+                 },
+                "score": 0
+            },
+            "socialSentiment": { ... },
+            "overallScore": ...
         }
         ```
 
 **Example using JavaScript `fetch`:**
 ```javascript
-const ticker = 'AAPL';
-const timePeriod = 7; // Number of days
+const ticker = 'TSLA';
 
-fetch(`http://127.0.0.1:8000/stock/${ticker}?time_period=${timePeriod}`)
+fetch(`http://127.0.0.1:8000/stock/${ticker}`)
   .then(response => response.json())
   .then(data => {
-    if (data.err_msg) {
-      console.error('API Error:', data.err_msg);
-    } else {
-      console.log('Stock Data:', data);
-    }
+    console.log('Full Analysis:', data);
+    console.log('Overall Score:', data.overallScore);
   })
   .catch(error => console.error('Fetch Error:', error));
 ```
