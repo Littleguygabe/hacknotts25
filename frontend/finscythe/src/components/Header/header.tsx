@@ -1,19 +1,22 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { SearchStock } from "./SearchStock"
+import { Link } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { SearchStock } from './SearchStock';
 
-export function NavigationMenuDemo() {
+export function Header() {
 
   return (
     <div className="bg-card text-card-foreground p-4 flex items-center justify-between">
       {/* Group for left-aligned items: Home and Stocks */}
       <div className="flex gap-4"> 
-        <Button variant="ghost">Home</Button>
-        <Button variant="ghost">Stocks</Button>
+        <Link to="/">
+          <Button variant="ghost">Home</Button>
+        </Link>
+        <Link to="/discovery">
+          <Button variant="ghost">Discovery</Button>
+        </Link>
       </div>
-      
-      {/* Search component for right-aligned item */}
       <SearchStock />
     </div>
   )

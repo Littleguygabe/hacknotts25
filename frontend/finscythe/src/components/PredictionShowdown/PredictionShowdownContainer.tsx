@@ -32,7 +32,7 @@ export function PredictionShowdownContainer({ ticker }: PredictionShowdownContai
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://127.0.0.1:8000/stock/${ticker}?time_period=1`);
+        const response = await fetch(`http://127.0.0.1:8000/sentiment/synthetic/${ticker}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

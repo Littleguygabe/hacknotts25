@@ -530,11 +530,13 @@ const tickers = [
   },
 ];
 
-import { useTicker } from '../../context/TickerContext';
+import { useTicker } from '../../context/TickerContext.tsx';
+import { useNavigate } from 'react-router-dom';
 
 export function SearchStock() {
   const [open, setOpen] = React.useState(false);
   const { selectedTicker, setSelectedTicker } = useTicker();
+  const navigate = useNavigate();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -564,6 +566,7 @@ export function SearchStock() {
                   onSelect={(currentValue) => {
                     setSelectedTicker(currentValue === selectedTicker ? "" : currentValue);
                     setOpen(false);
+                    navigate(`/stock/${currentValue}`);
                   }}
                 >
                   {ticker.label}

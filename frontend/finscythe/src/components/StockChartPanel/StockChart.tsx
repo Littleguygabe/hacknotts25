@@ -132,7 +132,7 @@ export function ChartAreaWithDateTime({ ticker }: { ticker: string }) {
   }
 
   return (
-    <Card className="pt-0">
+    <Card className="pt-0 w-full max-w-4xl">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="flex flex-1 items-center gap-2">
           <StockLogo ticker={ticker} />
