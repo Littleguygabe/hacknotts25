@@ -1,5 +1,9 @@
 import yfinance as yf
+import services.finnHubController as finnHubController
 
+def getNewsSummary(ticker_sym):
+    print('calling finnhub controller')
+    news_stories = finnHubController.getNews(ticker_sym)
 
 def getAnalystSentiment(ticker_sym):
     print('getting analyst sentiment')
@@ -11,6 +15,8 @@ def getAnalystSentiment(ticker_sym):
         # targetMeanPrice: The average price target from analysts
         # regularMarketPrice: The last traded price
         # numberOfAnalystOpinions: How many analysts contribute to the consensus
+        news_summary = getNewsSummary(ticker_sym)
+
 
         data = {
             "ticker": ticker_sym,
@@ -18,12 +24,15 @@ def getAnalystSentiment(ticker_sym):
             "recommendationKey": info.get('recommendationKey', 'n/a'),
             "numberOfAnalystOpinions": info.get('numberOfAnalystOpinions', 0),
             "targetMeanPrice": info.get('targetMeanPrice', 0),
-            "currentPrice": info.get('regularMarketPrice', info.get('currentPrice', 0))
+            "currentPrice": info.get('regularMarketPrice', info.get('currentPrice', 0)),
+            "corporateActions":info.get('corporateActions'),
+            "news_summary":news_summary
         }
 
         if data['currentPrice'] is None or data['currentPrice'] == 0:
             print(f"Warning: Could not fetch current price for {ticker_sym}. Upside calculation will be skewed.")
             data['currentPrice'] = data['targetMeanPrice'] # Avoid division by zero, though this makes upside 0
+
 
         return data
         
@@ -34,7 +43,6 @@ def getAnalystSentiment(ticker_sym):
 
 def analyseSentiment(data):
     #take in sentiment in the format of the output from analyst sentiment    
-
     if not data or data.get('recommendationMean') is None:
         return {
             'ticker': data.get('ticker','N/A'),
@@ -74,15 +82,19 @@ def analyseSentiment(data):
         "analystCount": data['numberOfAnalystOpinions'],
         "currentPrice": f"${data['currentPrice']:.2f}",
         "targetMeanPrice": f"${data['targetMeanPrice']:.2f}",
-        "potentialUpside": f"{potential_upside_pct:.2f}%"
+        "potentialUpside": f"{potential_upside_pct:.2f}%",
+        "corporateActions":data.get('corporateActions'),
+        "news_summary":data.get('news_summary')
     }
     
+    #eventually add gemini sentiment prediction
+    print(analysis)
     return analysis
 
+
 def getSentimentAnalysis(ticker,time_period):
-    analyst_info = getAnalystSentiment(ticker)
-    analyst_sentiment = analyseSentiment(analyst_info)
-    print(analyst_sentiment)
+    analyst_info = getAnalystSentiment(ticker) # gets the raw sentiment values
+    analyst_sentiment = analyseSentiment(analyst_info) #provides actual analysis
 
 
 
