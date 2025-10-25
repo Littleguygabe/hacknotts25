@@ -56,8 +56,31 @@
                 </button>
             </div>
         </div>
+
+        <!-- Section 3: Test the "/stock/{ticker}" endpoint -->
+        <div class="py-6">
+            <h2 class="text-lg font-semibold text-gray-700">Test "/stock/{ticker}" Endpoint</h2>
+            <p class="text-sm text-gray-500 mb-3">
+                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/{ticker}</code>
+            </p>
+            <div class="flex space-x-4">
+                <input 
+                    type="text" 
+                    id="tickerInput" 
+                    value="AAPL" 
+                    placeholder="Enter stock ticker"
+                    class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <button 
+                    id="stockApiButton" 
+                    class="bg-purple-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200"
+                >
+                    3. Get Stock Data
+                </button>
+            </div>
+        </div>
         
-        <!-- Section 3: Display results -->
+        <!-- Section 4: Display results -->
         <div class="pt-6">
             <h2 class="text-xl font-semibold mb-2 text-gray-700">API Response:</h2>
             <!-- A div to show loading/error messages -->
@@ -75,6 +98,8 @@
         const healthCheckButton = document.getElementById('healthCheckButton');
         const testApiButton = document.getElementById('testApiButton');
         const messageInput = document.getElementById('messageInput');
+        const stockApiButton = document.getElementById('stockApiButton');
+        const tickerInput = document.getElementById('tickerInput');
         const responseArea = document.getElementById('responseArea');
         const messageArea = document.getElementById('messageArea');
 
@@ -133,6 +158,35 @@
             }
         }
 
+        // --- Function to call the "/stock/{ticker}" endpoint ---
+        async function callStockApi() {
+            const ticker = tickerInput.value;
+            if (!ticker) {
+                messageArea.textContent = 'Please enter a stock ticker.';
+                return;
+            }
+
+            setLoading(stockApiButton, 'Fetching...');
+            
+            const apiUrl = `${BASE_URL}/stock/${ticker.toUpperCase()}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                const data = await response.json();
+                displaySuccess(data);
+                
+                console.log("Stock API call successful.");
+
+            } catch (error) {
+                displayError(error);
+            } finally {
+                setDone(stockApiButton, '3. Get Stock Data');
+            }
+        }
+
         // --- Helper Functions for UI ---
 
         function setLoading(button, text) {
@@ -166,11 +220,18 @@
         // --- Attach Event Listeners ---
         healthCheckButton.addEventListener('click', callHealthCheck);
         testApiButton.addEventListener('click', callTestApi);
+        stockApiButton.addEventListener('click', callStockApi);
         
-        // Allow pressing 'Enter' in the input field
+        // Allow pressing 'Enter' in the input fields
         messageInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 callTestApi();
+            }
+        });
+
+        tickerInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                callStockApi();
             }
         });
     </script>

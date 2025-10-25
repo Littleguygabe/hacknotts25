@@ -3,15 +3,19 @@ import pandas as pd
 
 
 def getTickerAttributes(ticker):
-    data_dict_arr = getRawData(ticker)
-    # need to eventually implement the market sentiment analysis into the return dictionary
+    try:
+        data_dict_arr = getRawData(ticker)
+        # need to eventually implement the market sentiment analysis into the return dictionary
 
-    ticker_dict = {
-        'ticker':ticker,
-        'ticker_history':data_dict_arr
-    }
+        ticker_dict = {
+            'ticker':ticker,
+            'ticker_history':data_dict_arr
+        }
 
-    return ticker_dict
+        return ticker_dict
+
+    except:
+        return {'err_msg':f"'{ticker}' ticker Does not exist OR has no retrievable data"}
 
 def getRawData(ticker):
     tick = yf.Ticker(ticker)

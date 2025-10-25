@@ -38,8 +38,7 @@ def get_stock_data(ticker: str):
     This endpoint receives a stock ticker, fetches its recent 1-minute interval data,
     and returns it as a JSON array.
     """
-    ticker_data = getTickerAttributes(ticker)
-    print(ticker_data)
+    ticker_data = getTickerAttributes(ticker.upper())
     return ticker_data
 
 

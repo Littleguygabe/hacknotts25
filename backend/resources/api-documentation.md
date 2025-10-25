@@ -8,9 +8,9 @@ First, ensure you have the necessary dependencies installed by running this comm
 ```bash
 pip install -r requirements.txt
 ```
-Then, from the `backend/core` directory, run the backend server:
+Then, from the **`backend`** directory, run the backend server:
 ```bash
-uvicorn apiController:app --reload
+uvicorn core.apiController:app --reload
 ```
 The API will then be available at `http://127.0.0.1:8000`.
 
@@ -59,7 +59,7 @@ A simple endpoint to test sending a string to the backend and getting a response
     -   **Content:** 
         ```json
         {
-            "message": "thank you for your api call"
+            "message": "Call Received with message > your_message_here"
         }
         ```
 
@@ -73,4 +73,59 @@ fetch(`http://127.0.0.1:8000/test?message=${encodedMessage}`)
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
+```
+
+---
+
+### 3. Get Stock Data by Ticker
+
+Fetches recent historical price data for a given stock ticker. The data includes the closing price for each minute over the last 7 days.
+
+-   **URL:** `/stock/{ticker}`
+-   **Method:** `GET`
+-   **URL Parameters:**
+    -   `ticker` (string, **required**): The stock symbol to look up (e.g., `AAPL`, `TSLA`).
+
+-   **Success Response:**
+    -   **Code:** `200 OK`
+    -   **Content:** A JSON object containing the ticker and an array of its recent closing prices.
+        ```json
+        {
+            "ticker": "AAPL",
+            "ticker_history": [
+                {
+                    "Datetime": "2025-10-24 09:30:00",
+                    "Close": 150.12
+                },
+                {
+                    "Datetime": "2025-10-24 09:31:00",
+                    "Close": 150.15
+                }
+            ]
+        }
+        ```
+
+-   **Error Response:**
+    -   **Code:** `200 OK` (Note: The API currently returns a 200 status even for invalid tickers. The frontend should check the response body for an `err_msg` key to handle errors.)
+    -   **Content:**
+        ```json
+        {
+            "err_msg": "'INVALIDTICKER' ticker Does not exist OR has no retrievable data"
+        }
+        ```
+
+**Example using JavaScript `fetch`:**
+```javascript
+const ticker = 'AAPL';
+
+fetch(`http://127.0.0.1:8000/stock/${ticker}`)
+  .then(response => response.json())
+  .then(data => {
+    if (data.err_msg) {
+      console.error('API Error:', data.err_msg);
+    } else {
+      console.log('Stock Data:', data);
+    }
+  })
+  .catch(error => console.error('Fetch Error:', error));
 ```
