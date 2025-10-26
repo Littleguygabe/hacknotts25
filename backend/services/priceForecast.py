@@ -53,6 +53,7 @@ def initialiseParams(ticker):
         multiplier_combined = 1.0+((combined_score-50)/100)    
         mu_combined = (mu_hist*multiplier_combined)*100
 
+        last_date = ticker_data.index[-1]
         all_params = {
             "start_price": start_price,
             "garch_params": garch_params,
@@ -60,7 +61,8 @@ def initialiseParams(ticker):
             "last_return_scaled": last_return_scaled,
             "mu_analyst": mu_analyst,
             "mu_social": mu_social,
-            "mu_combined": mu_combined
+            "mu_combined": mu_combined,
+            "last_date": last_date
         }
 
         return all_params
@@ -118,6 +120,9 @@ def forecastPrices(ticker, forecast_horizon):
     if not init_params:
         return {"error": "Failed to initialize parameters for simulation."}
 
+    last_date = init_params["last_date"]
+    future_dates = pd.to_datetime(pd.date_range(start=last_date + pd.Timedelta(days=1), periods=forecast_horizon))
+
     mus = {
         "analyst": init_params["mu_analyst"],
         "social": init_params["mu_social"],
@@ -129,17 +134,13 @@ def forecastPrices(ticker, forecast_horizon):
         for _ in range(n_sims):
             tasks.append((mu_name, mu_value))
 
-    # Create a partial function to pass extra arguments to the worker
     p_worker = partial(_run_single_simulation_for_worker, 
                        forecast_horizon=forecast_horizon, 
                        init_params=init_params)
 
-    # Run all simulations in parallel
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
         results = pool.map(p_worker, tasks)
 
-    # Process results
-    # Group paths by mu_name
     grouped_results = {}
     for mu_name, path in results:
         if mu_name not in grouped_results:
@@ -150,13 +151,14 @@ def forecastPrices(ticker, forecast_horizon):
     for mu_name, paths in grouped_results.items():
         paths_df = pd.DataFrame(paths).T
         mean_path = paths_df.mean(axis=1)
-        lower_bound = paths_df.quantile(0.05, axis=1)
-        upper_bound = paths_df.quantile(0.95, axis=1)
         
-        final_results[mu_name] = {
-            "mean_path": mean_path.tolist(),
-            "lower_bound": lower_bound.tolist(),
-            "upper_bound": upper_bound.tolist(),
-        }
+        forecast_data = []
+        for i in range(len(mean_path)):
+            forecast_data.append({
+                "Datetime": future_dates[i].strftime('%Y-%m-%d %H:%M:%S'),
+                "Close": mean_path.iloc[i]
+            })
+        
+        final_results[mu_name] = forecast_data
         
     return final_results
