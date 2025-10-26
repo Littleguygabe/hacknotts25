@@ -3,214 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastAPI Test Page</title>
-    <!-- Load Tailwind CSS for styling -->
+    <title>FinScythe API Tester</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* A little style for the response area */
-        pre {
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
+        pre { white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-sans p-4">
 
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl divide-y divide-gray-200">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl divide-y divide-gray-200">
         
-        <h1 class="text-2xl font-bold mb-4 text-gray-800">My FastAPI Tester</h1>
+        <h1 class="text-3xl font-bold mb-4 text-gray-800">FinScythe API Tester</h1>
         
-        <!-- Section 1: Test the root ("/") endpoint -->
-        <div class="py-6">
-            <h2 class="text-lg font-semibold text-gray-700">Test Root Endpoint</h2>
-            <p class="text-sm text-gray-500 mb-3">
-                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /</code>
-            </p>
-            <button 
-                id="healthCheckButton" 
-                class="bg-green-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200"
-            >
-                1. Call Health Check
+        <!-- Section 1: Health Check -->
+        <div class="py-5">
+            <h2 class="text-lg font-semibold text-gray-700">1. Health Check</h2>
+            <p class="text-sm text-gray-500 mb-3">Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /</code> to ensure the server is running.</p>
+            <button id="healthCheckButton" class="bg-green-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-green-700 transition duration-200">
+                Call Health Check
             </button>
         </div>
 
-        <!-- Section 2: Test the "/test" endpoint -->
-        <div class="py-6">
-            <h2 class="text-lg font-semibold text-gray-700">Test "/test" Endpoint</h2>
-            <p class="text-sm text-gray-500 mb-3">
-                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /test?message=...</code>
-            </p>
-            <div class="flex space-x-4">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    value="Hello FastAPI!" 
-                    placeholder="Enter message here"
-                    class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button 
-                    id="testApiButton" 
-                    class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
-                >
-                    2. Send Test API Call
+        <!-- Section 2: Get Historical Price Data -->
+        <div class="py-5">
+            <h2 class="text-lg font-semibold text-gray-700">2. Get Historical Price Data</h2>
+            <p class="text-sm text-gray-500 mb-3">Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/{ticker}?time_period=...</code></p>
+            <div class="flex items-center space-x-4">
+                <input type="text" id="stockTickerInput" value="AAPL" placeholder="Ticker" class="w-32 p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <input type="number" id="timePeriodInput" value="7" placeholder="Days" class="w-24 p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <button id="stockApiButton" class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-blue-700 transition duration-200">
+                    Get Price History
                 </button>
             </div>
         </div>
 
-        <!-- Section 3: Test the "/stock/{ticker}" endpoint -->
-        <div class="py-6">
-            <h2 class="text-lg font-semibold text-gray-700">Test "/stock/{ticker}" Endpoint</h2>
-            <p class="text-sm text-gray-500 mb-3">
-                Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/{ticker}?time_period=...</code>
-            </p>
-            <div class="flex space-x-4">
-                <input 
-                    type="text" 
-                    id="tickerInput" 
-                    value="AAPL" 
-                    placeholder="Enter stock ticker"
-                    class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <input 
-                    type="number" 
-                    id="timePeriodInput" 
-                    value="7" 
-                    placeholder="Days"
-                    class="w-24 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <button 
-                    id="stockApiButton" 
-                    class="bg-purple-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200"
-                >
-                    3. Get Stock Data
+        <!-- Section 3: Get Full Sentiment Analysis -->
+        <div class="py-5">
+            <h2 class="text-lg font-semibold text-gray-700">3. Get Full Sentiment Analysis</h2>
+            <p class="text-sm text-gray-500 mb-3">Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /sentiment/{ticker}</code></p>
+            <div class="flex items-center space-x-4">
+                <input type="text" id="sentimentTickerInput" value="TSLA" placeholder="Ticker" class="flex-grow p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <button id="sentimentApiButton" class="bg-purple-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-purple-700 transition duration-200">
+                    Get Sentiment
+                </button>
+            </div>
+            <div class="mt-3 flex items-center">
+                <input type="checkbox" id="useSyntheticData" class="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                <label for="useSyntheticData" class="ml-2 block text-sm text-gray-900">Use Synthetic Data (to save API calls)</label>
+            </div>
+        </div>
+
+        <!-- Section 4: Get Price Action Predictions -->
+        <div class="py-5">
+            <h2 class="text-lg font-semibold text-gray-700">4. Get Price Action Predictions</h2>
+            <p class="text-sm text-gray-500 mb-3">Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/predict/{ticker}?forecast_horizon=...</code></p>
+            <div class="flex items-center space-x-4">
+                <input type="text" id="predictionTickerInput" value="AAPL" placeholder="Ticker" class="w-32 p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <input type="text" id="forecastHorizonInput" value="7d" placeholder="Horizon" class="w-24 p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <button id="predictionApiButton" class="bg-teal-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-teal-700 transition duration-200">
+                    Get Predictions
                 </button>
             </div>
         </div>
         
-        <!-- Section 4: Display results -->
+        <!-- Section 5: Display results -->
         <div class="pt-6">
             <h2 class="text-xl font-semibold mb-2 text-gray-700">API Response:</h2>
-            <!-- A div to show loading/error messages -->
             <div id="messageArea" class="text-red-500 font-medium my-3"></div>
-            
-            <!-- A preformatted block to display the JSON response -->
-            <pre id="responseArea" class="bg-gray-900 text-green-300 p-6 rounded-md shadow-inner text-sm">
-// API responses will appear here...
-            </pre>
+            <pre id="responseArea" class="bg-gray-900 text-green-300 p-6 rounded-md shadow-inner text-sm">// API responses will appear here...</pre>
         </div>
     </div>
 
     <script>
-        // Get references to all the interactive elements
+        const BASE_URL = 'http://localhost:8000';
+
+        // --- Element References ---
         const healthCheckButton = document.getElementById('healthCheckButton');
-        const testApiButton = document.getElementById('testApiButton');
-        const messageInput = document.getElementById('messageInput');
         const stockApiButton = document.getElementById('stockApiButton');
-        const tickerInput = document.getElementById('tickerInput');
+        const sentimentApiButton = document.getElementById('sentimentApiButton');
+        const predictionApiButton = document.getElementById('predictionApiButton');
+        const stockTickerInput = document.getElementById('stockTickerInput');
         const timePeriodInput = document.getElementById('timePeriodInput');
+        const sentimentTickerInput = document.getElementById('sentimentTickerInput');
+        const predictionTickerInput = document.getElementById('predictionTickerInput');
+        const forecastHorizonInput = document.getElementById('forecastHorizonInput');
+        const useSyntheticData = document.getElementById('useSyntheticData');
         const responseArea = document.getElementById('responseArea');
         const messageArea = document.getElementById('messageArea');
 
-        // Base URL for your API
-        const BASE_URL = 'http://localhost:8000';
-
-        // --- Function to call the "/" endpoint ---
-        async function callHealthCheck() {
-            setLoading(healthCheckButton, 'Calling...');
-            
+        // --- API Call Functions ---
+        async function callApi(button, url) {
+            setLoading(button, 'Calling...');
             try {
-                const response = await fetch(`${BASE_URL}/`);
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 const data = await response.json();
                 displaySuccess(data);
-
             } catch (error) {
                 displayError(error);
             } finally {
-                setDone(healthCheckButton, '1. Call Health Check');
+                setDone(button);
             }
         }
 
-        // --- Function to call the "/test" endpoint ---
-        async function callTestApi() {
-            const message = messageInput.value;
-            if (!message) {
-                messageArea.textContent = 'Please enter a message to send.';
-                return;
-            }
-
-            setLoading(testApiButton, 'Sending...');
-            
-            const encodedMessage = encodeURIComponent(message);
-            const apiUrl = `${BASE_URL}/test?message=${encodedMessage}`;
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
-                const data = await response.json();
-                displaySuccess(data);
-                
-                console.log("API call successful. Check your Python terminal to see the 'received api request' print statement!");
-
-            } catch (error) {
-                displayError(error);
-            } finally {
-                setDone(testApiButton, '2. Send Test API Call');
-            }
+        function callHealthCheck() {
+            callApi(healthCheckButton, `${BASE_URL}/`);
         }
 
-        // --- Function to call the "/stock/{ticker}" endpoint ---
-        async function callStockApi() {
-            const ticker = tickerInput.value;
+        function callPriceHistoryApi() {
+            const ticker = stockTickerInput.value;
             const timePeriod = timePeriodInput.value;
-
-            if (!ticker) {
-                messageArea.textContent = 'Please enter a stock ticker.';
+            if (!ticker || !timePeriod) {
+                messageArea.textContent = 'Ticker and Time Period are required.';
                 return;
             }
-            if (!timePeriod) {
-                messageArea.textContent = 'Please enter a time period in days.';
-                return;
-            }
-
-            setLoading(stockApiButton, 'Fetching...');
-            
-            const apiUrl = `${BASE_URL}/stock/${ticker.toUpperCase()}?time_period=${timePeriod}`;
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
-                const data = await response.json();
-                displaySuccess(data);
-                
-                console.log("Stock API call successful.");
-
-            } catch (error) {
-                displayError(error);
-            } finally {
-                setDone(stockApiButton, '3. Get Stock Data');
-            }
+            const url = `${BASE_URL}/stock/${ticker.toUpperCase()}?time_period=${timePeriod}`;
+            callApi(stockApiButton, url);
         }
 
-        // --- Helper Functions for UI ---
+        function callSentimentApi() {
+            const ticker = sentimentTickerInput.value;
+            if (!ticker) {
+                messageArea.textContent = 'Ticker is required.';
+                return;
+            }
+            const isSynthetic = useSyntheticData.checked;
+            const endpoint = isSynthetic ? '/sentiment/synthetic/' : '/sentiment/';
+            const url = `${BASE_URL}${endpoint}${ticker.toUpperCase()}`;
+            callApi(sentimentApiButton, url);
+        }
 
+        function callPredictionApi() {
+            const ticker = predictionTickerInput.value;
+            const forecastHorizon = forecastHorizonInput.value;
+            if (!ticker || !forecastHorizon) {
+                messageArea.textContent = 'Ticker and Forecast Horizon are required.';
+                return;
+            }
+            const url = `${BASE_URL}/stock/predict/${ticker.toUpperCase()}?forecast_horizon=${forecastHorizon}`;
+            callApi(predictionApiButton, url);
+        }
+
+        // --- UI Helper Functions ---
+        let originalButtonText = {};
         function setLoading(button, text) {
             messageArea.textContent = '';
             responseArea.textContent = 'Loading...';
+            if (!originalButtonText[button.id]) originalButtonText[button.id] = button.textContent;
             button.disabled = true;
             button.textContent = text;
             button.classList.add('opacity-50', 'cursor-not-allowed');
         }
 
-        function setDone(button, text) {
+        function setDone(button) {
             button.disabled = false;
-            button.textContent = text;
+            button.textContent = originalButtonText[button.id];
             button.classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
@@ -224,33 +171,23 @@
             console.error('Fetch error:', error);
             messageArea.textContent = `Error: ${error.message}. Is your backend server running on port 8000?`;
             responseArea.textContent = '// Fetch failed. See error message above.';
-            responseArea.classList.remove('text-green-300');
+            responseArea.classList.remove('text-red-300');
             responseArea.classList.add('text-red-300');
         }
 
         // --- Attach Event Listeners ---
         healthCheckButton.addEventListener('click', callHealthCheck);
-        testApiButton.addEventListener('click', callTestApi);
-        stockApiButton.addEventListener('click', callStockApi);
-        
-        // Allow pressing 'Enter' in the input fields
-        messageInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                callTestApi();
-            }
-        });
+        stockApiButton.addEventListener('click', callPriceHistoryApi);
+        sentimentApiButton.addEventListener('click', callSentimentApi);
+        predictionApiButton.addEventListener('click', callPredictionApi);
 
-        tickerInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                callStockApi();
-            }
-        });
+        // Allow pressing 'Enter' in input fields
+        stockTickerInput.addEventListener('keydown', e => e.key === 'Enter' && callPriceHistoryApi());
+        timePeriodInput.addEventListener('keydown', e => e.key === 'Enter' && callPriceHistoryApi());
+        sentimentTickerInput.addEventListener('keydown', e => e.key === 'Enter' && callSentimentApi());
+        predictionTickerInput.addEventListener('keydown', e => e.key === 'Enter' && callPredictionApi());
+        forecastHorizonInput.addEventListener('keydown', e => e.key === 'Enter' && callPredictionApi());
 
-        timePeriodInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                callStockApi();
-            }
-        });
     </script>
 
 </body>

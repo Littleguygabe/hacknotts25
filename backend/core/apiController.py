@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import time
 
 # Correctly import the function from the services package
 from services.handleTickerData import getTickerAttributes
 from services.sentimentAnalysis import getSentimentAnalysis
+from services.priceForecast import forecastPrices
 
 app = FastAPI()
 
@@ -35,14 +37,21 @@ def test_api_call(message: str):
 
 @app.get("/stock/{ticker}")
 def get_stock_data(ticker: str,time_period: int):
-    ticker_data = getTickerAttributes(ticker.upper(),time_period)
+    ticker_data = getTickerAttributes(ticker.strip('$').upper(),time_period)
     return ticker_data
 
 @app.get("/sentiment/{ticker}")
 def get_sentiment(ticker:str):
-    sentiment = getSentimentAnalysis(ticker)
+    # start = time.time()
+    sentiment = getSentimentAnalysis(ticker.strip('$').upper())
+    # print(f'Runtime: {time.time()-start}s')
+    
     return sentiment
 
+@app.get("/stock/predict/{ticker}")
+def getPriceActionPredictions(ticker: str,forecast_horizon: int):
+    forecasts = forecastPrices(ticker.strip('$').upper(),forecast_horizon)
+    return forecasts
 
 
 
