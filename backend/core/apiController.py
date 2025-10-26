@@ -43,14 +43,15 @@ def get_stock_data(ticker: str,time_period: int):
 @app.get("/sentiment/{ticker}")
 def get_sentiment(ticker:str):
     # start = time.time()
-    sentiment = getSentimentAnalysis(ticker)
+    sentiment = getSentimentAnalysis(ticker.strip('$').upper())
     # print(f'Runtime: {time.time()-start}s')
     
     return sentiment
 
-@app.get("/stock/{ticker}")
-def getPriceActionPredictions(ticker: str,forecast_horizon: str):
-    forecasts = forecastPrices(ticker,forecast_horizon)
+@app.get("/stock/predict/{ticker}")
+def getPriceActionPredictions(ticker: str,forecast_horizon: int):
+    forecasts = forecastPrices(ticker.strip('$').upper(),forecast_horizon)
+    return forecasts
 
 
 

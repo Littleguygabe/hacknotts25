@@ -52,8 +52,21 @@
                 <label for="useSyntheticData" class="ml-2 block text-sm text-gray-900">Use Synthetic Data (to save API calls)</label>
             </div>
         </div>
+
+        <!-- Section 4: Get Price Action Predictions -->
+        <div class="py-5">
+            <h2 class="text-lg font-semibold text-gray-700">4. Get Price Action Predictions</h2>
+            <p class="text-sm text-gray-500 mb-3">Calls <code class="bg-gray-200 text-sm p-1 rounded">GET /stock/predict/{ticker}?forecast_horizon=...</code></p>
+            <div class="flex items-center space-x-4">
+                <input type="text" id="predictionTickerInput" value="AAPL" placeholder="Ticker" class="w-32 p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <input type="text" id="forecastHorizonInput" value="7d" placeholder="Horizon" class="w-24 p-3 border border-gray-300 rounded-md shadow-sm"/>
+                <button id="predictionApiButton" class="bg-teal-600 text-white px-5 py-2 rounded-md font-semibold shadow-md hover:bg-teal-700 transition duration-200">
+                    Get Predictions
+                </button>
+            </div>
+        </div>
         
-        <!-- Section 4: Display results -->
+        <!-- Section 5: Display results -->
         <div class="pt-6">
             <h2 class="text-xl font-semibold mb-2 text-gray-700">API Response:</h2>
             <div id="messageArea" class="text-red-500 font-medium my-3"></div>
@@ -68,9 +81,12 @@
         const healthCheckButton = document.getElementById('healthCheckButton');
         const stockApiButton = document.getElementById('stockApiButton');
         const sentimentApiButton = document.getElementById('sentimentApiButton');
+        const predictionApiButton = document.getElementById('predictionApiButton');
         const stockTickerInput = document.getElementById('stockTickerInput');
         const timePeriodInput = document.getElementById('timePeriodInput');
         const sentimentTickerInput = document.getElementById('sentimentTickerInput');
+        const predictionTickerInput = document.getElementById('predictionTickerInput');
+        const forecastHorizonInput = document.getElementById('forecastHorizonInput');
         const useSyntheticData = document.getElementById('useSyntheticData');
         const responseArea = document.getElementById('responseArea');
         const messageArea = document.getElementById('messageArea');
@@ -117,6 +133,17 @@
             callApi(sentimentApiButton, url);
         }
 
+        function callPredictionApi() {
+            const ticker = predictionTickerInput.value;
+            const forecastHorizon = forecastHorizonInput.value;
+            if (!ticker || !forecastHorizon) {
+                messageArea.textContent = 'Ticker and Forecast Horizon are required.';
+                return;
+            }
+            const url = `${BASE_URL}/stock/predict/${ticker.toUpperCase()}?forecast_horizon=${forecastHorizon}`;
+            callApi(predictionApiButton, url);
+        }
+
         // --- UI Helper Functions ---
         let originalButtonText = {};
         function setLoading(button, text) {
@@ -144,7 +171,7 @@
             console.error('Fetch error:', error);
             messageArea.textContent = `Error: ${error.message}. Is your backend server running on port 8000?`;
             responseArea.textContent = '// Fetch failed. See error message above.';
-            responseArea.classList.remove('text-green-300');
+            responseArea.classList.remove('text-red-300');
             responseArea.classList.add('text-red-300');
         }
 
@@ -152,11 +179,14 @@
         healthCheckButton.addEventListener('click', callHealthCheck);
         stockApiButton.addEventListener('click', callPriceHistoryApi);
         sentimentApiButton.addEventListener('click', callSentimentApi);
+        predictionApiButton.addEventListener('click', callPredictionApi);
 
         // Allow pressing 'Enter' in input fields
         stockTickerInput.addEventListener('keydown', e => e.key === 'Enter' && callPriceHistoryApi());
         timePeriodInput.addEventListener('keydown', e => e.key === 'Enter' && callPriceHistoryApi());
         sentimentTickerInput.addEventListener('keydown', e => e.key === 'Enter' && callSentimentApi());
+        predictionTickerInput.addEventListener('keydown', e => e.key === 'Enter' && callPredictionApi());
+        forecastHorizonInput.addEventListener('keydown', e => e.key === 'Enter' && callPredictionApi());
 
     </script>
 
