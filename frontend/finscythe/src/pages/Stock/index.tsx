@@ -22,6 +22,9 @@ const Stock = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-gray-900 dark:text-gray-100 p-4">
       <ChartAreaWithDateTime ticker={currentTicker} />
+      <div className="my-8">
+        <p className="text-4xl font-bold text-gray-900 dark:text-gray-100">Prediction</p>
+      </div>
       <PredictionShowdownContainer ticker={currentTicker} />
     </div>
   );

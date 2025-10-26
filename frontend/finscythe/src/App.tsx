@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Discovery from './pages/Discovery';
 import Stock from './pages/Stock';
+import { Footer } from './components/Footer/footer';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/discovery" element={<Discovery />} />
           <Route path="/stock/:ticker" element={<Stock />} />
         </Routes>
+        <Footer />
       </TickerProvider>
     </Router>
   );

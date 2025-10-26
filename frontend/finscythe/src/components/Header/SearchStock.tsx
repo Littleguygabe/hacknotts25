@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-const tickers = [
+export const tickers = [
   {
     value: "AAPL",
     label: "AAPL",
@@ -555,7 +555,7 @@ export function SearchStock() {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder="Search stock..." className="h-9" />
           <CommandList>
             <CommandEmpty>Search More...</CommandEmpty>
             <CommandGroup>
